@@ -1,0 +1,64 @@
+<script src="https://unpkg.com/vue@3"></script>
+
+<div id="app">
+    <h1>Places</h1>
+    <hr>
+    <div class="places-list">
+        <ul>
+            <li v-for="place in places">
+                {{place.name}}, {{place.city}} ({{place.country}})
+                <ul>
+                    <li v-for="event in events">
+                        {{event.name}} : {{event.description}}
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+<hr>
+<input type="text" v-model="name" placeholder="Name"/><br>
+<input type="text" v-model="country" placeholder="Country"/><br>
+<input type="text" v-model="city" placeholder="City"/><br>
+<button @click="addPlace">Add place</button>
+</div>
+
+
+<script>
+    Vue.createApp({
+    data() {
+      return {
+        events: [],
+        places: [],
+      }
+    },
+    methods: {
+      addPlace() {
+        this.places.push({
+          name: this.name,
+          country: this.country,
+          city: this.city,
+        });
+      }
+    },
+    mounted(){
+        Promise.all([
+        fetch(
+            'http://127.0.0.1:8000/places/'
+        ),
+        fetch(
+            'http://127.0.0.1:8000/events/'
+        )
+      ])
+        .then(responses => {
+            return Promise.all(responses.map(r => r.json()));
+        })
+        .then(data => {
+          this.places = data[0];
+          this.events = data[1];
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+  }).mount('#app')
+</script>
