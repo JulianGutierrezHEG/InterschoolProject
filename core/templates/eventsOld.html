@@ -1,0 +1,110 @@
+ {% extends 'base.html' %}
+
+{% block content %}
+<div id="add-event-app">
+ <h1 class="title">Add Event</h1>
+ <form v-on:submit="validateForm" method="post" action="." v-on:submit="validateForm">
+     {% csrf_token %}
+
+
+     <div class="notification is-danger" v-if="errors.length">
+         <p v-for="error in errors"> [[error]]</p>
+     </div>
+
+    <div class="field">
+        <label class="label">Event Name</label>
+         <div class="control">
+            <input class="input" type="text" name="title" id="id_title" v-model="title">
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">Short Description</label>
+         <div class="control">
+            <textarea class="textarea" type="text" name="short_description" id="id_short_description" v-model="short_description"></textarea>
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">Long Description</label>
+         <div class="control">
+            <textarea class="textarea" type="text" name="long_description" id="id_longDesc" v-model="long_description"></textarea>
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">Event Date</label>
+         <div class="control">
+            <input class="input" type="date" name="date" id="id_date" v-model="date">
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">Event Time</label>
+         <div class="control">
+            <input class="input" type="time" name="time" id="id_time" v-model="time">
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">Event Location</label>
+         <div class="control">
+            <input class="input" type="text" name="location" id="id_location" v-model="location">
+        </div>
+    </div>
+
+
+    <div class="field">
+        <div class="control">
+            <button  class="button is-success">Submit</button>
+        </div>
+    </div>
+ </form>
+</div>
+{% endblock %}
+
+{% block scripts %} 
+<script>
+    const AddEventApp = {
+        data(){
+            return{
+                title: '',
+                short_description: '',
+                long_description: '',
+                date: '',
+                time: '',
+                location: '',
+                errors: []
+            }
+        },
+        delimiters: ['[[', ']]'],
+        methods: {
+            validateForm(e){
+                this.errors = []
+                if (this.title === ''){
+                    this.errors.push('Title is required');
+                }
+                if (this.short_description === ''){
+                    this.errors.push('Short description is required');
+                }
+                if (this.long_description === ''){
+                    this.errors.push('Long description is required');
+                }
+                if (this.date === ''){
+                    this.errors.push('Date is required');
+                }
+                if (this.time === ''){
+                    this.errors.push('Time is required');
+                }
+                if (this.location === ''){
+                    this.errors.push('Location is required');
+                }
+                if (this.errors.length){
+                    e.preventDefault()
+                    return false
+                }else{
+                    return true
+                }
+            }
+        }
+
+        }
+
+        Vue.createApp(AddEventApp).mount('#add-event-app')
+</script>
+{% endblock %}

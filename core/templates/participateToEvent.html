@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+ <h1 class="title">Participate at the event - {{ event.title}}</h1>
+ <form method="post" action=".">
+     {% csrf_token %}
+     {% if form.errors %}
+        {% for error in form.errors %}
+            <div class="notification is-danger">{{ error }}</div>
+        {% endfor %}
+     {% endif %}
+
+    <div class="field">
+        <label class="label">Notes</label>
+         <div class="control">
+            <textarea class="textarea" type="text" name="content" id="id_content"></textarea>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="control">
+            <button  class="button is-success">Submit</button>
+        </div>
+    </div>
+ </form>
+{% endblock %}

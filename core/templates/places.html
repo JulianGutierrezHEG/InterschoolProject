@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+    {% block content %}
+    <div id="starting">
+      <div class="container">
+        <div class="row">
+          <h1>
+            List of Places
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-toggle="modal"
+              data-target="#addPlaceModal"
+            >
+              ADD PLACE
+            </button>
+
+          </h1>
+          &emsp;
+          <div class="form-inline my-2 my-lg-0" style="margin-left: 40%">
+            <input
+              class="form-control mr-sm-2"
+              type="text"
+              placeholder="Search"
+              v-model="search_term"
+              aria-label="Search"
+            />
+            <button
+              class="btn btn-outline-success my-2 my-sm-0"
+              v-on:click.prevent="getPlaces()"
+            >
+              Search
+            </button>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Place Name</th>
+                <th scope="col">Place Address</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="place in places">
+                <th scope="row">${place.place_name}</th>
+                <td>${place.place_address}</td>
+                <td>
+                  <button
+                    class="btn btn-info"
+                    v-on:click="getPlace(place.place_id)"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="btn btn-danger"
+                    v-on:click="deletePlace(place.place_id)"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Add Place Modal -->
+          <div
+            class="modal fade"
+            id="addPlaceModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLongTitle"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">
+                    ADD PLACE
+                  </h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form v-on:submit.prevent="addPlace()">
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="place_name">Place Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="place_name"
+                        placeholder="Enter Place Name"
+                        v-model="newPlace.place_name"
+                        required="required"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="place_address">Place Address</label>
+                      <textarea
+                        class="form-control"
+                        id="place_address"
+                        placeholder="Enter Place Address"
+                        v-model="newPlace.place_address"
+                        required="required"
+                        rows="3"
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary m-progress"
+                      data-dismiss="modal"
+                    >
+                      Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                      Save changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="loading" v-if="loading===true">Loading&#8230;</div>
+          </div>
+          <!-- End of add place modal -->
+          <!-- Edit Place Modal -->
+          <div
+            class="modal fade"
+            id="editPlaceModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLongTitle"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">
+                    EDIT PLACE
+                  </h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form v-on:submit.prevent="updatePlace()">
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="place_name">Place Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="place_name"
+                        placeholder="Enter Place Name"
+                        v-model="currentPlace.place_name"
+                        required="required"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="place_address">Place Address</label>
+                      <textarea
+                        class="form-control"
+                        id="place_address"
+                        placeholder="Enter Place Address"
+                        v-model="currentPlace.place_address"
+                        required="required"
+                        rows="3"
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary m-progress"
+                      data-dismiss="modal"
+                    >
+                      Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                      Save changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="loading" v-if="loading===true">Loading&#8230;</div>
+          </div>
+          <!-- End of edit place modal -->
+        </div>
+      </div>
+      <div class="loading" v-if="loading===true">Loading&#8230;</div>
+    </div>
+
+  
+
+    <!-- vue.js files -->
+    
+    <script src="https://unpkg.com/vue-router@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.3"></script>
+    <script type="text/javascript">
+      Vue.http.headers.common["X-CSRFToken"] = "{{ csrf_token }}";
+      new Vue({
+        el: "#starting",
+        delimiters: ["${", "}"],
+        data: {
+          places: [],
+          loading: true,
+          currentPlace: {},
+          newPlace: { place_name: null, place_address: null },
+          search_term: "",
+        },
+        mounted: function () {
+          this.getPlaces();
+        },
+        methods: {
+          getPlaces: function () {
+            let api_url = "/api/place/";
+            if (this.search_term !== "" || this.search_term !== null) {
+              api_url = `/api/place/?search=${this.search_term}`;
+            }
+            this.loading = true;
+            this.$http
+              .get(api_url)
+              .then((response) => {
+                this.places = response.data;
+                this.loading = false;
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              });
+          },
+          getPlace: function (id) {
+            this.loading = true;
+            this.$http
+              .get("/api/place/" + id + "/")
+              .then((response) => {
+                this.currentPlace = response.data;
+                $("#editPlaceModal").modal("show");
+                this.loading = false;
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              });
+          },
+          addPlace: function () {
+            this.loading = true;
+            this.$http
+              .post("/api/place/", this.newPlace)
+              .then((response) => {
+                this.loading = true;
+                this.getPlaces();
+              })
+              .catch((err) => {
+                this.loading = true;
+                console.log(err);
+              });
+          },
+          updatePlace: function () {
+            this.loading = true;
+            this.$http
+              .put(
+                "/api/place/" + this.currentPlace.place_id + "/",
+                this.currentPlace
+              )
+              .then((response) => {
+                this.loading = false;
+                this.currentPlace = response.data;
+                this.getPlaces();
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              });
+          },
+          deletePlace: function (id) {
+            this.loading = true;
+            this.$http
+              .delete("/api/place/" + id + "/")
+              .then((response) => {
+                this.loading = false;
+                this.getPlaces();
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              });
+          },
+        },
+      });
+    </script>
+    {% endblock %}
+

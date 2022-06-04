@@ -1,0 +1,11 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<h1 class="title">{{ event.title}}</h1>
+<p>Description: {{ event.description }}</p>
+<p>Event Date: {{ event.date }}</p>
+<p>Event Location: {{ event.location }}</p>
+
+<a href="{% url 'participateToEvent' event.id %}" class="button is-success">Participate</a>
+
+{% endblock %}

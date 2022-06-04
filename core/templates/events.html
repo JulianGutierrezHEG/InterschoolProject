@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+    {% block content %}
+    <div id="starting">
+      <div class="container">
+        <div class="row">
+          <h1>
+            List of Events
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-toggle="modal"
+              data-target="#addEventModal"
+            >
+              ADD EVENTS
+            </button>
+
+          </h1>
+          &emsp;
+          <div class="form-inline my-2 my-lg-0" style="margin-left: 40%">
+            <input
+              class="form-control mr-sm-2"
+              type="text"
+              placeholder="Search"
+              v-model="search_term"
+              aria-label="Search"
+            />
+            <button
+              class="btn btn-outline-success my-2 my-sm-0"
+              v-on:click.prevent="getEvents()"
+            >
+              Search
+            </button>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Event Name</th>
+                <th scope="col">Event date</th>
+                <th scope="col">Event description</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="event in events">
+                <th scope="row">${event.title}</th>
+                <td>${event.date}</td>
+                <td>${event.description}</td>
+                <td>
+                  <button
+                    class="btn btn-info"
+                    v-on:click="getEvent(event.id)"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="btn btn-danger"
+                    v-on:click="deleteEvent(event.id)"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Add Event Modal -->
+          <div
+            class="modal fade"
+            id="addEventModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLongTitle"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">
+                    ADD EVENT
+                  </h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form v-on:submit.prevent="addEvent()">
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="title">Event Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="title"
+                        placeholder="Enter Event Name"
+                        v-model="newEvent.title"
+                        required="required"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="date">Event Date</label>
+                      <input
+                        type="date"
+                        class="form-control"
+                        id="date"
+                        v-model="newEvent.date"
+                        required="required"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="description">Event Description</label>
+                      <textarea
+                        class="form-control"
+                        id="decription"
+                        placeholder="Enter Event Description"
+                        v-model="newEvent.description"
+                        required="required"
+                        rows="3"
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary m-progress"
+                      data-dismiss="modal"
+                    >
+                      Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                      Save changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="loading" v-if="loading===true">Loading&#8230;</div>
+          </div>
+          <!-- End of add event modal -->
+          <!-- Edit Event Modal -->
+          <div
+            class="modal fade"
+            id="editEventModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLongTitle"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">
+                    EDIT EVENT
+                  </h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form v-on:submit.prevent="updateEvent()">
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="title">Event Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="title"
+                        placeholder="Enter Event Name"
+                        v-model="currentEvent.title"
+                        required="required"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="date">Event Date</label>
+                      <input
+                        type="date"
+                        class="form-control"
+                        id="date"
+                        v-model="currentEvent.date"
+                        required="required"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="description">Event Description</label>
+                      <textarea
+                        class="form-control"
+                        id="description"
+                        placeholder="Enter Event Description"
+                        v-model="currentEvent.description"
+                        required="required"
+                        rows="3"
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary m-progress"
+                      data-dismiss="modal"
+                    >
+                      Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                      Save changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="loading" v-if="loading===true">Loading&#8230;</div>
+          </div>
+          <!-- End of edit event Place modal -->
+        </div>
+      </div>
+      <div class="loading" v-if="loading===true">Loading&#8230;</div>
+    </div>
+
+  
+
+    <!-- vue.js files -->
+    
+    <script src="https://unpkg.com/vue-router@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.3"></script>
+    <script type="text/javascript">
+      Vue.http.headers.common["X-CSRFToken"] = "{{ csrf_token }}";
+      new Vue({
+        el: "#starting",
+        delimiters: ["${", "}"],
+        data: {
+          events: [],
+          loading: true,
+          currentEvent: {},
+          newEvent: { title: null,date: null, description: null,created_by: null },
+          search_term: "",
+        },
+        mounted: function () {
+          this.getEvents();
+        },
+        methods: {
+          getEvents: function () {
+            let api_url = "/api/event/";
+            if (this.search_term !== "" || this.search_term !== null) {
+              api_url = `/api/event/?search=${this.search_term}`;
+            }
+            this.loading = true;
+            this.$http
+              .get(api_url)
+              .then((response) => {
+                this.events = response.data;
+                this.loading = false;
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              });
+          },
+          getEvent: function (id) {
+            this.loading = true;
+            this.$http
+              .get("/api/event/" + id + "/")
+              .then((response) => {
+                this.currentEvent = response.data;
+                $("#editEventModal").modal("show");
+                this.loading = false;
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              });
+          },
+          addEvent: function () {
+            this.loading = true;
+            this.$http
+              .post("/api/event/", this.newEvent)
+              .then((response) => {
+                this.loading = true;
+                this.getEvents();
+              })
+              .catch((err) => {
+                this.loading = true;
+                console.log(err);
+              });
+          },
+          updateEvent: function () {
+            this.loading = true;
+            this.$http
+              .put(
+                "/api/event/" + this.currentEvent.id + "/",
+                this.currentEvent
+              )
+              .then((response) => {
+                this.loading = false;
+                this.currentEvent = response.data;
+                this.getEvents();
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              });
+          },
+          deleteEvent: function (id) {
+            this.loading = true;
+            this.$http
+              .delete("/api/event/" + id + "/")
+              .then((response) => {
+                this.loading = false;
+                this.getEvents();
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              });
+          },
+        },
+      });
+    </script>
+    {% endblock %}
+

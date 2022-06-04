@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="title"> Details </h1>
+
+<h2> {{ participation.event.title }} </h2>
+
+<small> Participating from: {{ participation.created_at }} </small>
+
+<p> <strong> {{ participation.content }} </strong></p>
+
+<hr>
+<h2 class="subtitle"> Conversation </h2>
+
+{% for message in participation.conversationmessages.all %}
+<div class="notification">
+   <b> {{ message.created_by.username}} - {{message.created_at|timesince}} ago </b><br>
+   {{ message.message }}
+</div>
+{% empty %}
+<p> No messages yet </p>
+<hr>
+{% endfor %}
+
+<form method="post" action=".">
+   {% csrf_token %}
+    <div class="field">
+        <div class="control">
+            <textarea name="message" class="textarea" placeholder="Your message" id="id_message"></textarea>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="control">
+            <button  class="button is-success"> Send </button>
+        </div>
+    </div>
+    
+{% endblock %}
+    

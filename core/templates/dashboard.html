@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="title"> Dashboard</h1>
+
+<a href="{% url 'events' %}" class="button is-success">Events</a>
+<a href="{% url 'places' %}" class="button is-success">Places</a>
+
+
+
+
+<h2 class="subtitle"> Events created</h2>
+{% for event in request.user.events.all %}
+    <div class="event">
+<a href="{% url 'dashboard_event_details' event.id %}" >{{event.title}} </a>
+    </div>
+{% empty %}
+ <p>You dont have any events created</p>
+{%endfor%}
+<hr>
+<h2 class="subtitle"> Events participating</h2>
+{% for participation in request.user.participations.all %}
+    <div class="event">
+        <a href="{% url 'participation_details' participation.id %}">{{participation.event.title}}</a>
+    </div>
+{% empty %}
+ <p>You dont participate in any events</p>
+{%endfor%}
+<hr>
+{% if userprofile.is_admin%}
+    <p>You're logged as an admin</p>
+{% else %}
+    <p>You're logged as an user</p>
+{% endif %}
+{% endblock %}

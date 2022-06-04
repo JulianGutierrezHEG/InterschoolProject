@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="title"> Event Details - {{ event.title}}</h1>
+<p>Description: {{ event.description }}</p>
+<p>Event Date: {{ event.date }}</p>
+<p>Event Location: {{ event.location }}</p>
+
+<hr>
+<h1 class="title"> Participants</h1>
+<ul>
+{% for participation in event.participations.all %}
+<li>
+<small>{{participation.created_by.username}}</small>
+</li>
+{% endfor %}
+</ul>
+{% endblock%}

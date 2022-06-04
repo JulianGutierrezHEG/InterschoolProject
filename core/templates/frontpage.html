@@ -1,0 +1,27 @@
+ {% extends 'base.html' %}
+
+ {% block content %}
+    <h2 class="subtitle has-text-centered">Newest events</h2>
+
+    <div class="columns">
+      {% for event in events %}
+      <div class="column is-3">
+         <div class="card">
+            <div class="card-content">
+               <div class="media">
+                  <div class="media-content">
+                     <p class="title is-4">{{ event.title }}</p>
+                     <p class="subtitle is-6">{{ event.created_at }}</p>
+                  </div>
+               </div>
+               <div class="content">
+                  {{ event.short_description }}
+                  <hr>
+                  <a href="{% url 'event_detail' event.id %}">View</a>
+               </div>
+            </div>
+         </div>
+      </div>
+      {% endfor %}
+    </div>
+ {% endblock %}
